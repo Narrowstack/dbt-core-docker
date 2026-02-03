@@ -13,4 +13,3 @@ WORKDIR /workspaces
 USER dbt
 RUN curl https://raw.githubusercontent.com/fishtown-analytics/dbt-completion.bash/master/dbt-completion.bash > ~/.dbt-completion.bash \
     && echo 'source ~/.dbt-completion.bash' >> ~/.bashrc
-RUN pip install -U pip && pip install shandy-sqlfmt[jinjafmt]==0.27.0
