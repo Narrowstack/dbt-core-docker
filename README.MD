@@ -15,8 +15,11 @@ ghcr.io/narrowstack/dbt-core-docker/base:3.14.2
 ghcr.io/narrowstack/dbt-core-docker:1.11.2-postgres-1.10.0
 
 #snowflake
-1.9.4-snowflake-1.9.4
-1.11.2-snowflake-1.11.1
+ghcr.io/narrowstack/dbt-core-docker1.9.4-snowflake-1.9.4
+ghcr.io/narrowstack/dbt-core-docker1.11.2-snowflake-1.11.1
+
+#clickhouse
+ghcr.io/narrowstack/dbt-core-docker:1.10.9-clickhouse-1.9.2
 ```
 
 ### Base Image
