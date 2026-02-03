@@ -84,8 +84,8 @@ jobs:
   # ---------- 3.  Build every child image ----------
   children:
     needs: [base, matrix-prep]
-    if: needs.matrix-prep.outputs.include != '[]' # ← skip whole job
-    runs-on: self-hosted
+    if: needs.matrix-prep.outputs.include != '' # always true now, but keeps the guard
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -113,9 +113,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push ${{ matrix.tag }}
+        if: matrix.tag != 'SKIP'
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.dir }} # directory that contains the Dockerfile
+          context: ${{ matrix.dir }}
           file: ${{ matrix.file }}
           push: true
           tags: |
