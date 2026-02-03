@@ -52,9 +52,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: filters
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            base:
+              - 'BuilderBase.Dockerfile'
+            children:
+              - '**/*-*.Dockerfile'
 
       - name: Generate matrix
         id: prep
+        if: steps.changes.outputs.base == 'true' || steps.changes.outputs.children == 'true'
         run: |
           # build JSON array: [{"dir":"api","file":"api/1.11.2-postgres-1.10.0.Dockerfile","tag":"1.11.2-postgres-1.10.0"}, ...]
           find . -type f -name '*-*.Dockerfile' -not -path './.github/*' | while read -r f; do
@@ -68,6 +81,7 @@ jobs:
   # ---------- 3.  Build every child image ----------
   children:
     needs: [base, matrix-prep]
+    if: needs.matrix-prep.outputs.include != '[]' # ← skip whole job
     runs-on: self-hosted
     permissions:
       contents: read
@@ -100,6 +114,6 @@ jobs:
             ${{ env.REGISTRY }}/narrowstack/dbt-core-docker:${{ github.sha }}
             ${{ env.REGISTRY }}/narrowstack/dbt-core-docker:${{ matrix.tag }}
           cache-from: |
-            type=gha
+            type=registry,ref=${{ env.REGISTRY }}//narrowstack/dbt-core-docker:${{ matrix.tag }}
             type=registry,ref=${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}:latest
-          cache-to: type=gha,mode=max
+          cache-to: type=inline

@@ -4,9 +4,24 @@ This is a collection of docker images useful for development with things like VS
 
 ## Image Tags
 
+Currently supported images are:
+
+```
+#base image
+ghcr.io/narrowstack/dbt-core-docker/base:latest
+ghcr.io/narrowstack/dbt-core-docker/base:3.14.2
+
+# postgres
+ghcr.io/narrowstack/dbt-core-docker:1.11.2-postgres-1.10.0
+
+#snowflake
+1.9.4-snowflake-1.9.4
+1.11.2-snowflake-1.11.1
+```
+
 ### Base Image
 
-There is also the base python images without the dbt-core or dbt-{{adapter}} images installed available as at tag `3.14.2-base` and `latest`.
+There is also the base python images without the dbt-core or dbt-{{adapter}} images installed available as `ghcr.io/narrowstack/dbt-core-docker/base:3.14.2-base` and `ghcr.io/narrowstack/dbt-core-docker/base:latest`.
 
 ### DBT Core & Adapter Versions
 
