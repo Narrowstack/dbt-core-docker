@@ -97,8 +97,8 @@ jobs:
           file: ${{ matrix.file }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ github.repository }}:${{ matrix.tag }}
+            ${{ env.REGISTRY }}/narrowstack/dbt-core-docker:${{ github.sha }}
+            ${{ env.REGISTRY }}/narrowstack/dbt-core-docker:${{ matrix.tag }}
           cache-from: |
             type=gha
             type=registry,ref=${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}:latest
