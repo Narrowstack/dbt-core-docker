@@ -1,56 +1,27 @@
 name: Build selected Dockerfile
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
-      dockerfile:
-        description: "Dockerfile to build"
+      adapter:
+        description: "adapter to build"
         required: true
         type: choice
-        # choices are filled at run-time by the first job
+        options:
+          - postgres
+          - snowflake
+          - clickhouse
+      core-and-adapter-versions:
+        description: "Format like the dockerfiles {core-version}-{adapter-version}"
+        required: true
+        type: string
 
 env:
   REGISTRY: ghcr.io
   BASE_IMAGE_NAME: narrowstack/dbt-core-docker/base
 
 jobs:
-  # ---------- 1.  Update the dropdown list ----------
-  update-choices:
-    runs-on: self-hosted
-    permissions:
-      actions: write # allow editing the workflow
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }} # or a PAT if repo is private
-
-      - name: Collect current Dockerfiles
-        id: list
-        run: |
-          find . -type f -name '*-*.Dockerfile' -not -path './.github/*' | \
-          jq -R -s -c 'split("\n") | map(select(length>0))' > /tmp/choices.json
-
-      - name: Patch workflow file with choices
-        run: |
-          # backup first (yq < 4.18 needs explicit -y for yaml output)
-          cp .github/workflows/build-one.yml /tmp/orig.yml
-          yq -y '
-            .on.workflow_dispatch.inputs.dockerfile.choices = '"$(cat /tmp/choices.json)"'
-          ' /tmp/orig.yml > .github/workflows/build-one.yml
-
-      - name: Commit & push if changed
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .github/workflows/build-one.yml
-          git diff --quiet HEAD || (git commit -m "chore: update Dockerfile choices" && git push)
-
-  # ---------- 2.  Real build job (same as before) ----------
   build:
-    needs: update-choices # optional sequencing; can be removed
     runs-on: self-hosted
     permissions:
       contents: read
@@ -75,24 +46,15 @@ jobs:
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}:latest
           cache-to: type=inline
 
-      - name: Parse inputs
-        id: meta
-        run: |
-          FILE='${{ github.event.inputs.dockerfile }}'
-          ADAPTER=$(dirname "$FILE" | xargs basename)
-          TAG=$(basename "$FILE" .Dockerfile)
-          echo "adapter=$ADAPTER" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG"         >> "$GITHUB_OUTPUT"
-
-      - name: Build & push ${{ steps.meta.outputs.tag }}
+      - name: Build & push ${{ github.event.inputs.adapter }}:${{ github.event.inputs.core-and-adapter-versions }}
         uses: docker/build-push-action@v5
         with:
-          context: ${{ steps.meta.outputs.adapter }}
-          file: ${{ github.event.inputs.dockerfile }}
+          context: ./${{ github.event.inputs.adapter }}
+          file: ${{ github.event.inputs.core-and-adapter-versions }}.Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/narrowstack/dbt-core-docker/${{ steps.meta.outputs.adapter }}:${{ steps.meta.outputs.tag }}
+            ${{ env.REGISTRY }}/narrowstack/dbt-core-docker/${{ github.event.inputs.adapter }}:${{ github.event.inputs.core-and-adapter-versions }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/narrowstack/dbt-core-docker/${{ steps.meta.outputs.adapter }}:${{ steps.meta.outputs.tag }}
+            type=registry,ref=${{ env.REGISTRY }}/narrowstack/dbt-core-docker/${{ github.event.inputs.adapter }}:${{ github.event.inputs.core-and-adapter-versions }}
             type=registry,ref=${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}:latest
           cache-to: type=inline
