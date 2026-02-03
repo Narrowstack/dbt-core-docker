@@ -61,10 +61,8 @@ jobs:
         with:
           list-files: json
           filters: |
-            base:
-              - 'BuilderBase.Dockerfile'
-            children:
-              - '**/*-*.Dockerfile'
+            dockerfile:
+            - '**/*-*.Dockerfile'
 
       - name: Generate matrix
         id: prep

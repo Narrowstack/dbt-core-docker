@@ -20,6 +20,7 @@ ghcr.io/narrowstack/dbt-core-docker1.11.2-snowflake-1.11.1
 
 #clickhouse
 ghcr.io/narrowstack/dbt-core-docker:1.10.9-clickhouse-1.9.2
+ghcr.io/narrowstack/dbt-core-docker:1.11.2-clickhouse-1.9.8
 ```
 
 ### Base Image
