@@ -12,7 +12,7 @@ env:
 
 jobs:
   base:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -46,7 +46,7 @@ jobs:
 
   # ---------- 2.  Discover child Dockerfiles ----------
   matrix-prep:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       include: ${{ steps.prep.outputs.include }}
     steps:
@@ -68,7 +68,7 @@ jobs:
   # ---------- 3.  Build every child image ----------
   children:
     needs: [base, matrix-prep]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
