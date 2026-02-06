@@ -1,4 +1,4 @@
-FROM python:3.14.2-slim
+FROM python:3.13-slim
 RUN groupadd -g 1000 dbt \
     && useradd -u 1000 -g dbt -s /bin/sh -m dbt \
     && echo "dbt:dbt" | chpasswd
